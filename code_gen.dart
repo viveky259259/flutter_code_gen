@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:dart_style/dart_style.dart';
 
+
 var formatter = new DartFormatter();
+
 
 void main() {
   print("""Select a choice!
@@ -32,16 +34,16 @@ List<String> getListFromSSVString(String string) {
 
 void createBloc() async {
   print('Enter name of bloc');
-  String blocName = stdin.readLineSync();
-  // String blocName = "Chat";
+//  String blocName = stdin.readLineSync();
+   String blocName = "Chat";
   print('Enter states for bloc seperated by a space');
-  String states = stdin.readLineSync();
-  // String states = 'A B C D';
+//  String states = stdin.readLineSync();
+   String states = 'A B C D';
   List<String> stateList = getListFromSSVString(states);
   print('Enter events for bloc seperated by a space');
 
-  String events = stdin.readLineSync();
-  // String events = 'E F G H';
+//  String events = stdin.readLineSync();
+   String events = 'E F G H';
   List<String> eventList = getListFromSSVString(events);
   Directory mainBLocDirectory = Directory('blocs');
   if (!await mainBLocDirectory.exists()) mainBLocDirectory.createSync();
