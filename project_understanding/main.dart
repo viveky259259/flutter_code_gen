@@ -8,29 +8,53 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/visitor.dart';
 import 'dart:math' as math;
 
+import 'package:pdf/widgets.dart';
+
+import 'pdf_generator/generator.dart';
+import 'pdf_generator/widgets/file_box_widget.dart';
+import 'pdf_generator/widgets/folder_box_widget.dart';
+
 void main(List<String> args) async {
   print('understand the project');
-  Directory directory = Directory('lib');
+  Directory directory = Directory('F:\\Flutter\\sync-2\\lib');
   print(directory.path);
   print('Project Structure');
-  await printFiles(directory, 0);
+//  await printFiles(directory, 0);
 
   print('Classes Information');
   UnderStandProject underStandProject = UnderStandProject(directory);
-  var projectAnalysis = underStandProject.getAnalysis();
-  underStandProject.analyzeAllFiles(projectAnalysis);
+  AnalysisContextCollection projectAnalysis = underStandProject.getAnalysis();
+//  underStandProject.analyzeAllFiles(projectAnalysis);
+  List<Widget> widgets =
+      await printFiles(directory, 0, projectAnalysis, underStandProject);
+  print(widgets);
+  PDFGenerator(widgets).generate();
 }
 
-Future<void> printFiles(Directory directory, int dash) async {
+Future<List<Widget>> printFiles(
+    Directory directory,
+    int dash,
+    AnalysisContextCollection projectAnalysis,
+    UnderStandProject underStandProject) async {
+  List<Widget> widgets = [];
   List<FileSystemEntity> entities = directory.listSync();
 
   for (FileSystemEntity entity in entities) {
     FileStat stat = await entity.stat();
-    print('${'-' * dash} ${entity.path}');
-    if (stat.type == FileSystemEntityType.directory)
-      await printFiles(entity, dash + 1);
+
+    print(
+        '${(stat.type == FileSystemEntityType.directory) ? '|' : '|'}${'-' * dash * 2} ${entity.path.split("\\").last}');
+
+    if (stat.type == FileSystemEntityType.directory) {
+      widgets.add(FolderBox(
+          entity.path.split("\\").last,
+          await printFiles(
+              entity, dash + 1, projectAnalysis, underStandProject)));
+    } else {
+      widgets.add(FileBox(entity.path.split("\\").last));
+    }
   }
-  return;
+  return widgets;
 }
 
 class UnderStandProject {
@@ -43,7 +67,7 @@ class UnderStandProject {
     return directory.path;
   }
 
-  dynamic getAnalysis() {
+  AnalysisContextCollection getAnalysis() {
     AnalysisContextCollection collection =
         AnalysisContextCollection(includedPaths: [directory.absolute.path]);
     return collection;
@@ -84,7 +108,7 @@ class UnderStandProject {
 
 //          print(
 //              '   constructor  ${classElement.name}${constructorElement.name.trim().isNotEmpty ? '.' : ''}${constructorElement.name}()');
-        constructors++;
+          constructors++;
         }
       }
       for (FieldElement fieldElement in classElement.fields) {
@@ -92,7 +116,6 @@ class UnderStandProject {
 //          print('   field:  ${fieldElement.name}');
           field++;
         }
-
       }
       for (PropertyAccessorElement accessorElement in classElement.accessors) {
         if (!accessorElement.isSynthetic) {
@@ -106,7 +129,8 @@ class UnderStandProject {
           method++;
         }
       }
-      print(' ${classElement.name} [ Fields: $field, Constructors: $constructors, Methods: $method Property:$property]');
+      print(
+          ' ${classElement.name} [ Fields: $field, Constructors: $constructors, Methods: $method Property:$property]');
     }
   }
 

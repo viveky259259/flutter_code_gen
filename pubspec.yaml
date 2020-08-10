@@ -10,5 +10,9 @@ dependencies:
   bloc:
   # To analyze the project structure
   analyzer:
+  pdf: ^1.10.0
+
+
+
   
  
